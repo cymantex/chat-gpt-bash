@@ -1,5 +1,5 @@
 # ChatGPT Bash Script (`gpt`)
-```shell
+```
 ~$ gpt "Can you give me some dinner suggestions?"
 Sure, here are a few dinner suggestions:
 
@@ -21,7 +21,7 @@ Sure, here are a few dinner suggestions:
 3. Download and use the `gpt` script.
 
 # Usage
-```shell
+```
 Usage: gpt [...options] <question>
   -m, --model <model>     Set model to use, default is text-davinci-003.
                           See https://beta.openai.com/docs/api-reference/models.
