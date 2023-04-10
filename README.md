@@ -1,6 +1,6 @@
 # ChatGPT Bash Script (`gpt`)
 ```
-~$ gpt "Can you give me some dinner suggestions?"
+user:~$ gpt "Can you give me some dinner suggestions?"
 Sure, here are a few dinner suggestions:
 
 1. Grilled chicken or fish with roasted vegetables and baked sweet potato.
@@ -22,12 +22,12 @@ Sure, here are a few dinner suggestions:
 
 # Usage
 ```
+user:~$ gpt --help
 Usage: gpt [...options] <question>
-  -m, --model <model>     Set model to use, default is text-davinci-003 for 'text' and 
-                          gpt-3.5-turbo for 'chat'. See 
+  -m, --model <model>     Set model to use, default is text-davinci-003 for 'text' completion and 
+                          gpt-3.5-turbo for 'chat' completion. See 
                           https://beta.openai.com/docs/api-reference/models.
-  -c, --completion_type <type>  Can either be 'chat' or 'text'. Default is 'text'. Model will be
-                                set to gpt-3.5-turbo if completion_type is 'chat'.
+  -c, --completion_type <type>  Can either be 'chat' or 'text'. Default is 'text'.
   -t, --max_tokens <num>  Set the maximum number of tokens to generate in the completion. The token
                           count of your question plus max_tokens cannot exceed the model's context
                           length. Most models have a context length of 2048 tokens (except for
