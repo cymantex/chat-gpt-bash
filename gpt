@@ -51,13 +51,18 @@ while [ : ]; do
   esac
 done
 
+if [[ "$COMPLETION_TYPE" == "chat" && "$MODEL" == "text-davinci-003" ]]; then
+  MODEL="gpt-3.5-turbo"
+fi
+
 if [[ -z "$1" ]]; then
   echo "You must provide a question"
   printHelp
 fi
 
 QUESTION="$1"
-MAX_TOKENS=$(("$MAX_TOKENS" - ${#QUESTION}))
+URI_ENCODED_QUESTION=$(echo "$QUESTION" | jq -sRr @uri)
+MAX_TOKENS=$(("$MAX_TOKENS" - ${#URI_ENCODED_QUESTION}))
 
 getChatCompletions() {
   curl --silent https://api.openai.com/v1/chat/completions \
@@ -66,7 +71,7 @@ getChatCompletions() {
     -d '{
       "model": "gpt-3.5-turbo",
       "messages": [{"role": "user", "content": "'"$QUESTION"'"}],
-      "max_tokens": '$MAX_TOKENS'
+      "max_tokens": '$(("$MAX_TOKENS" - 10))' # Substract extra characters included in the message
     }'
 }
 

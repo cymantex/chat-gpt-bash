@@ -23,8 +23,9 @@ Sure, here are a few dinner suggestions:
 # Usage
 ```
 Usage: gpt [...options] <question>
-  -m, --model <model>     Set model to use, default is text-davinci-003.
-                          See https://beta.openai.com/docs/api-reference/models.
+  -m, --model <model>     Set model to use, default is text-davinci-003 for 'text' and 
+                          gpt-3.5-turbo for 'chat'. See 
+                          https://beta.openai.com/docs/api-reference/models.
   -c, --completion_type <type>  Can either be 'chat' or 'text'. Default is 'text'. Model will be
                                 set to gpt-3.5-turbo if completion_type is 'chat'.
   -t, --max_tokens <num>  Set the maximum number of tokens to generate in the completion. The token
