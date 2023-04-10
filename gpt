@@ -1,0 +1,101 @@
+#!/bin/bash
+
+printHelp() {
+  cat << EOF
+Usage: gpt [...options] <question>
+  -m, --model <model>     Set model to use, default is text-davinci-003.
+                          See https://beta.openai.com/docs/api-reference/models.
+  -c, --completion_type <type>  Can either be 'chat' or 'text'. Default is 'text'. Model will be
+                                set to gpt-3.5-turbo if completion_type is 'chat'.
+  -t, --max_tokens <num>  Set the maximum number of tokens to generate in the completion. The token
+                          count of your question plus max_tokens cannot exceed the model's context
+                          length. Most models have a context length of 2048 tokens (except for
+                          the newest models, which support 4096). Default is 4096 - question length.
+  -h, --help              Display this help message.
+EOF
+  exit
+}
+
+if [[ -z "${OPENAI_API_KEY}" ]]; then
+  echo "OPENAI_API_KEY environment variable is not set"
+  printHelp
+fi
+
+MODEL="text-davinci-003"
+COMPLETION_TYPE="text"
+MAX_TOKENS=4096
+
+eval set -- "$(getopt -o m:t:c:h --long model:,max_tokens:,completion_type:,help -- "$@")"
+
+while [ : ]; do
+  case "$1" in
+    -m | --model)
+      MODEL="$2"
+      shift 2
+      ;;
+    -c | --completion_type)
+      COMPLETION_TYPE="$2"
+      shift 2
+      ;;
+    -t | --max_tokens)
+      MAX_TOKENS="$2"
+      shift 2
+      ;;
+    -h | --help)
+      printHelp
+      ;;
+    --)
+      shift
+      break
+      ;;
+  esac
+done
+
+if [[ -z "$1" ]]; then
+  echo "You must provide a question"
+  printHelp
+fi
+
+QUESTION="$1"
+MAX_TOKENS=$(("$MAX_TOKENS" - ${#QUESTION}))
+
+getChatCompletions() {
+  curl --silent https://api.openai.com/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -d '{
+      "model": "gpt-3.5-turbo",
+      "messages": [{"role": "user", "content": "'"$QUESTION"'"}],
+      "max_tokens": '$MAX_TOKENS'
+    }'
+}
+
+getCompletions() {
+  curl --silent https://api.openai.com/v1/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -d '{
+      "model": "'"$MODEL"'",
+      "prompt": "'"$QUESTION"'",
+      "max_tokens": '$MAX_TOKENS'
+    }'
+}
+
+handleError() {
+  errorExists=$(echo "$1" | jq 'has("error")')
+
+  if [[ $errorExists == "true" ]]; then
+    echo "$1"
+    exit 1
+  fi
+}
+
+if [[ "$COMPLETION_TYPE" == "chat" ]]; then
+  chatCompletionsResponse=$(getChatCompletions "$QUESTION")
+  handleError "$chatCompletionsResponse"
+  echo "$chatCompletionsResponse" | jq -r '.choices[0].message.content'
+else
+  completionsResponse=$(getCompletions "$QUESTION")
+  handleError "$completionsResponse"
+  echo "$completionsResponse" | jq -r '.choices[0].text'
+fi
