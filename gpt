@@ -52,6 +52,7 @@ while [ : ]; do
 done
 
 if [[ "$COMPLETION_TYPE" == "chat" && "$MODEL" == "text-davinci-003" ]]; then
+  # text-davinci-003 doesn't support chat completion, we'll use gpt-3.5-turbo instead
   MODEL="gpt-3.5-turbo"
 fi
 
@@ -61,8 +62,7 @@ if [[ -z "$1" ]]; then
 fi
 
 QUESTION="$1"
-URI_ENCODED_QUESTION=$(echo "$QUESTION" | jq -sRr @uri)
-MAX_TOKENS=$(("$MAX_TOKENS" - ${#URI_ENCODED_QUESTION}))
+MAX_TOKENS=$(("$MAX_TOKENS" - ${#QUESTION}))
 
 getChatCompletions() {
   curl --silent https://api.openai.com/v1/chat/completions \
@@ -71,7 +71,7 @@ getChatCompletions() {
     -d '{
       "model": "gpt-3.5-turbo",
       "messages": [{"role": "user", "content": "'"$QUESTION"'"}],
-      "max_tokens": '$(("$MAX_TOKENS" - 10))' # Substract extra characters included in the message
+      "max_tokens": '$(("$MAX_TOKENS" - 10))'
     }'
 }
 
